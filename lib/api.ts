@@ -19,6 +19,7 @@ export interface ProductDetail extends Product {
   description: string;
   store: Store;
   category?: Category;
+  sales?: number;
   created_at: string;
   updated_at: string;
 }
@@ -70,6 +71,7 @@ export function convertProduct(apiProduct: Product): {
   originalPrice?: number;
   sellingPrice?: number;
   discountPercentage?: number;
+  sales: number;
   colorImages: string[];
   storeId: number;
 } {
@@ -85,6 +87,7 @@ export function convertProduct(apiProduct: Product): {
     originalPrice: discountPercentage > 0 ? basePrice : undefined,
     sellingPrice: discountPercentage > 0 ? sellingPrice : undefined,
     discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,
+    sales: (apiProduct as any).sales || 0,
     colorImages: apiProduct.color_images.length > 0 ? apiProduct.color_images : [apiProduct.image || ''],
     storeId: apiProduct.store_id,
   };

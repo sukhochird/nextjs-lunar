@@ -393,6 +393,7 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
                 images={product.colorImages}
                 selectedImage={selectedImage}
                 setSelectedImage={setSelectedImage}
+                alt={product.title}
                 discount={discount}
               />
             </div>

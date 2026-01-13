@@ -20,7 +20,7 @@ export function StoreBanner() {
           {/* Baby Photo */}
           <div className="flex-shrink-0">
             <img
-              src={exampleImage}
+              src={typeof exampleImage === 'string' ? exampleImage : exampleImage.src}
               alt="Цагаан сарын цахим экспо"
               className="w-24 h-24 rounded-lg object-cover"
             />

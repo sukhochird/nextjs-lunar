@@ -747,42 +747,42 @@ export default function ProductsPage() {
               )}
             </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Бүтээгдэхүүний зургууд
-                </label>
-                <div className="grid grid-cols-4 gap-2 mb-2">
-                  {productImagePreviews.map((preview, index) => (
-                    <div key={index} className="relative">
-                      <img 
-                        src={preview} 
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeProductImage(index)}
-                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <label className="flex items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-primary transition-colors">
-                  <div className="flex flex-col items-center justify-center">
-                    <ImageIcon className="w-6 h-6 mb-1 text-gray-500" />
-                    <p className="text-sm text-gray-500">Зураг нэмэх</p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Бүтээгдэхүүний зургууд
+              </label>
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                {productImagePreviews.map((preview, index) => (
+                  <div key={index} className="relative">
+                    <img 
+                      src={preview} 
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeProductImage(index)}
+                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   </div>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    multiple
-                    onChange={handleProductImagesChange}
-                  />
-                </label>
+                ))}
               </div>
+              <label className="flex items-center justify-center w-full h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-primary transition-colors">
+                <div className="flex flex-col items-center justify-center">
+                  <ImageIcon className="w-6 h-6 mb-1 text-gray-500" />
+                  <p className="text-sm text-gray-500">Зураг нэмэх</p>
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  multiple
+                  onChange={handleProductImagesChange}
+                />
+              </label>
+            </div>
             </div>
 
             {/* Status */}
@@ -792,16 +792,17 @@ export default function ProductsPage() {
               </h3>
               
               <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_active"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <label htmlFor="is_active" className="text-sm text-gray-700">
-                Идэвхтэй
-              </label>
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="is_active" className="text-sm text-gray-700">
+                  Идэвхтэй
+                </label>
+              </div>
             </div>
 
             {errors.submit && (

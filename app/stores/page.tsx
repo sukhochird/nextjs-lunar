@@ -2,8 +2,9 @@
 
 import { StoreListPage } from '@/components/StoreListPage';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function StoresPage() {
+function StoresPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -17,5 +18,13 @@ export default function StoresPage() {
       onBack={() => router.push('/')}
       onStoreClick={handleStoreClick}
     />
+  );
+}
+
+export default function StoresPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+      <StoresPageContent />
+    </Suspense>
   );
 }

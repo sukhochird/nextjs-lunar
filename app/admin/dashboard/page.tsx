@@ -39,13 +39,13 @@ export default function SuperAdminDashboard() {
       ]);
 
       // Ensure all data is arrays (handle paginated responses)
-      const stores = Array.isArray(storesData) ? storesData : (storesData.results || []);
-      const products = Array.isArray(productsData) ? productsData : (productsData.results || []);
-      const orders = Array.isArray(ordersData) ? ordersData : (ordersData.results || []);
-      const users = Array.isArray(usersData) ? usersData : (usersData.results || []);
+      const stores = Array.isArray(storesData) ? storesData : ((storesData as any)?.results || []);
+      const products = Array.isArray(productsData) ? productsData : ((productsData as any)?.results || []);
+      const orders = Array.isArray(ordersData) ? ordersData : ((ordersData as any)?.results || []);
+      const users = Array.isArray(usersData) ? usersData : ((usersData as any)?.results || []);
 
-      const totalSales = orders.reduce((sum, order) => {
-        return sum + parseFloat(order.total_amount || 0);
+      const totalSales = orders.reduce((sum: number, order: AdminOrder) => {
+        return sum + parseFloat(order.total_amount || '0');
       }, 0);
 
       setStats({

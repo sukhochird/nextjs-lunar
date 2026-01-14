@@ -12,6 +12,7 @@ import { fetchStores, Store as ApiStore } from '@/lib/api';
 interface Store {
   id: number;
   name: string;
+  slug: string;
   image: string;
   location: string;
   tags: string[];
@@ -20,7 +21,7 @@ interface Store {
 
 interface StoreListPageProps {
   onBack: () => void;
-  onStoreClick: (storeId: number, storeName: string) => void;
+  onStoreClick: (storeId: number, storeName: string, storeSlug: string) => void;
 }
 
 // Helper function to convert API store to frontend format
@@ -28,6 +29,7 @@ function convertStore(apiStore: ApiStore): Store {
   return {
     id: apiStore.id,
     name: apiStore.name,
+    slug: apiStore.slug,
     image: apiStore.image || '',
     location: apiStore.location,
     tags: apiStore.badges,
@@ -224,11 +226,11 @@ export function StoreListPage({ onBack, onStoreClick }: StoreListPageProps) {
           {stores.map((store) => (
             <div
               key={store.id}
-              onClick={() => onStoreClick(store.id, store.name)}
+              onClick={() => onStoreClick(store.id, store.name, store.slug)}
               className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden group"
             >
               {/* Store Image */}
-              <div className="relative h-32 sm:h-40 overflow-hidden bg-gray-100">
+              <div className="relative aspect-square overflow-hidden bg-gray-100">
                 <ImageWithFallback
                   src={store.image}
                   alt={store.name}
@@ -281,7 +283,7 @@ export function StoreListPage({ onBack, onStoreClick }: StoreListPageProps) {
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onStoreClick(store.id, store.name);
+                    onStoreClick(store.id, store.name, store.slug);
                   }}
                 >
                   Дэлгүүр үзэх

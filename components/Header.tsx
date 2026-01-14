@@ -27,18 +27,53 @@ export function Header({ onMenuClick, onStoreListClick, onCartClick, cartItemsCo
 
   return (
     <header className="bg-white rounded-lg shadow-sm sticky top-0 z-50">
-      {/* Mobile Simple Header - Sticky */}
-      <div className="md:hidden sticky top-0 z-50 bg-white px-3 py-3 border-b border-gray-100">
-        <div className="flex items-center gap-3">
+      {/* Mobile Simple Header - Sticky - Full Width */}
+      <div className="md:hidden sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm w-full">
+        <div className="flex items-center gap-2 px-4 py-2.5 w-full">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-shrink-0 p-2 h-auto"
+            onClick={onMenuClick}
+          >
+            <Menu className="h-5 w-5 text-gray-700" />
+          </Button>
           <img
             src={typeof logoImage === 'string' ? logoImage : logoImage.src}
             alt="Цагаан сарын цахим экспо"
-            className="h-10 object-cover"
+            className="h-9 object-cover flex-shrink-0"
           />
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm text-gray-900 truncate">
+            <h1 className="text-sm font-medium text-gray-900 truncate">
               Цагаан сарын цахим экспо
             </h1>
+          </div>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {onStoreListClick && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2 h-auto hidden sm:flex"
+                onClick={onStoreListClick}
+              >
+                <Store className="h-5 w-5 text-gray-700" />
+              </Button>
+            )}
+            {onCartClick && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2 h-auto relative"
+                onClick={onCartClick}
+              >
+                <ShoppingCart className="h-5 w-5 text-gray-700" />
+                {cartItemsCount !== undefined && cartItemsCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-medium w-4 h-4 rounded-full flex items-center justify-center transform translate-x-1 -translate-y-1">
+                    {cartItemsCount > 99 ? '99+' : cartItemsCount}
+                  </span>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </div>

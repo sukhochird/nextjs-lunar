@@ -30,6 +30,7 @@ import {
 import { Footer } from "./Footer";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { fetchSimilarProducts, convertProduct } from "@/lib/api";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -64,6 +65,7 @@ interface ProductDetailPageProps {
 }
 
 export function ProductDetailPage({ product, onBack, onCartClick, onProductClick }: ProductDetailPageProps) {
+  const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -252,21 +254,22 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Enhanced Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-all">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-4">
             {/* Left: Back Button */}
             <button
               onClick={onBack}
-              className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors group flex-shrink-0"
+              className="flex items-center gap-2 text-gray-700 hover:text-primary transition-all group flex-shrink-0 active:scale-95"
+              aria-label="Буцах"
             >
-              <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="text-sm sm:text-base">Буцах</span>
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-1 transition-transform" />
+              <span className="text-sm sm:text-base font-medium">Буцах</span>
             </button>
 
             {/* Center: Product Title (Hidden on mobile, shown on tablet+) */}
             <div className="hidden md:flex items-center gap-3 flex-1 min-w-0 mx-4">
-              <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden border-2 border-gray-200 flex-shrink-0 shadow-sm">
                 <ImageWithFallback
                   src={product.colorImages[selectedVariant]}
                   alt={product.title}
@@ -274,10 +277,10 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-sm lg:text-base text-gray-900 truncate">{product.title}</h2>
-                <p className="text-sm text-primary">
-                  {product.price.toLocaleString()}₮
-                  {product.originalPrice && (
+                <h2 className="text-sm lg:text-base font-semibold text-gray-900 truncate">{product.title}</h2>
+                <p className="text-sm text-primary font-medium">
+                  {displayPrice.toLocaleString()}₮
+                  {product.originalPrice && discountPercentage > 0 && (
                     <span className="text-xs text-gray-400 line-through ml-2">
                       {product.originalPrice.toLocaleString()}₮
                     </span>
@@ -287,29 +290,32 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               <button 
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+                className="p-2 sm:p-2.5 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-all group touch-manipulation"
                 title="Хуваалцах"
+                aria-label="Хуваалцах"
               >
-                <Share2 className="w-5 h-5 text-gray-600 group-hover:text-primary" />
+                <Share2 className="w-5 h-5 sm:w-5 sm:h-5 text-gray-600 group-hover:text-primary transition-colors" />
               </button>
               <button 
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+                className="p-2 sm:p-2.5 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-all group touch-manipulation"
                 title="Хадгалах"
+                aria-label="Хадгалах"
               >
-                <Heart className="w-5 h-5 text-gray-600 group-hover:text-red-500 group-hover:fill-red-500" />
+                <Heart className="w-5 h-5 sm:w-5 sm:h-5 text-gray-600 group-hover:text-red-500 group-hover:fill-red-500 transition-all" />
               </button>
               {onCartClick && (
                 <button 
                   onClick={onCartClick}
-                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors relative"
+                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 active:bg-primary/30 text-primary rounded-lg transition-all relative touch-manipulation"
                   title="Сагс"
+                  aria-label="Сагс"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  <span className="text-sm">Сагс</span>
+                  <span className="text-sm font-medium">Сагс</span>
                   {getTotalItems() > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse">
                       {getTotalItems()}
                     </span>
                   )}
@@ -320,33 +326,38 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4 sm:py-8 pb-24 lg:pb-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8 pb-28 sm:pb-32 lg:pb-8">
         {/* Main Product Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-6 lg:mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 lg:mb-8">
           {/* Left: Image Gallery */}
-          <div className="lg:bg-white lg:rounded-2xl lg:p-6 lg:shadow-sm lg:sticky lg:top-24 h-fit -mx-4 sm:-mx-6 lg:mx-0">
+          <div className="lg:bg-white lg:rounded-2xl lg:p-6 lg:shadow-sm lg:sticky lg:top-24 h-fit -mx-4 sm:-mx-6 lg:mx-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Main Image Slider */}
-            <div className="aspect-square lg:rounded-xl overflow-hidden bg-gray-50 mb-4 relative">
+            <div className="aspect-square lg:rounded-xl overflow-hidden bg-gray-50 mb-3 sm:mb-4 relative group">
               <Slider ref={mainSliderRef} {...mainSliderSettings}>
                 {product.colorImages.map((image, index) => (
                   <div key={index} className="aspect-square relative">
                     <ImageWithFallback
                       src={image}
                       alt={`${product.title} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     {discount > 0 && index === selectedImage && (
-                      <Badge className="absolute top-4 right-4 bg-red-500 hover:bg-red-500 text-white px-3 py-1 text-sm z-10">
+                      <Badge className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm z-10 shadow-lg animate-in zoom-in duration-300">
                         -{discount}% OFF
                       </Badge>
                     )}
                   </div>
                 ))}
               </Slider>
+              
+              {/* Image Counter - Mobile */}
+              <div className="lg:hidden absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md z-10">
+                {selectedImage + 1} / {product.colorImages.length}
+              </div>
             </div>
 
             {/* Thumbnail Navigation */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-3 px-4 sm:px-6 lg:px-0">
+            <div className="grid grid-cols-4 sm:grid-cols-4 gap-2 sm:gap-3 px-4 sm:px-6 lg:px-0">
               {product.colorImages.map((image, index) => (
                 <button
                   key={index}
@@ -354,11 +365,12 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
                     setSelectedImage(index);
                     mainSliderRef.current?.slickGoTo(index);
                   }}
-                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 active:scale-95 touch-manipulation ${
                     selectedImage === index
-                      ? "border-primary ring-2 ring-primary/30"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-primary ring-2 ring-primary/30 shadow-md scale-105"
+                      : "border-gray-200 hover:border-gray-300 hover:scale-105"
                   }`}
+                  aria-label={`Select image ${index + 1}`}
                 >
                   <ImageWithFallback
                     src={image}
@@ -371,237 +383,207 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
           </div>
 
           {/* Right: Product Details */}
-          <div className="space-y-4 lg:space-y-6">
+          <div className="space-y-4 sm:space-y-5 lg:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
             {/* Title & Actions */}
-            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl text-gray-900 leading-relaxed flex-1">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100">
+              <div className="flex items-start justify-between gap-4 mb-4 sm:mb-5">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight flex-1">
                   {product.title}
                 </h1>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors group">
-                    <Share2 className="w-5 h-5 text-gray-600 group-hover:text-primary" />
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                  <button className="p-2 sm:p-2.5 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all group touch-manipulation" aria-label="Хуваалцах">
+                    <Share2 className="w-5 h-5 text-gray-600 group-hover:text-primary transition-colors" />
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors group">
-                    <Heart className="w-5 h-5 text-gray-600 group-hover:text-red-500 group-hover:fill-red-500" />
+                  <button className="p-2 sm:p-2.5 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all group touch-manipulation" aria-label="Хадгалах">
+                    <Heart className="w-5 h-5 text-gray-600 group-hover:text-red-500 group-hover:fill-red-500 transition-all" />
                   </button>
                 </div>
               </div>
 
               {/* Price */}
-              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-xl p-5 border-2 border-primary/20">
+              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-xl p-4 sm:p-5 border-2 border-primary/20 shadow-sm">
                 {discountPercentage > 0 && product.sellingPrice ? (
                   <>
-                    <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                      <span className="text-primary">
+                    <div className="flex items-baseline gap-3 mb-2 sm:mb-3 flex-wrap">
+                      <span className="text-primary font-bold">
                         <span className="text-3xl sm:text-4xl lg:text-5xl">{product.sellingPrice.toLocaleString()}</span>
-                        <span className="text-xl ml-1">₮</span>
+                        <span className="text-xl sm:text-2xl ml-1">₮</span>
                       </span>
-                      <span className="text-gray-400 line-through text-lg sm:text-xl">
+                      <span className="text-gray-400 line-through text-lg sm:text-xl lg:text-2xl">
                         {product.price.toLocaleString()}₮
                       </span>
-                      <Badge className="bg-red-50 text-red-600 hover:bg-red-50 border border-red-200">
+                      <Badge className="bg-red-500 text-white hover:bg-red-600 border-0 shadow-md text-xs sm:text-sm px-2.5 py-1">
                         {discountPercentage}% хямдарсан
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600 flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      Таны хэмнэлт: <span className="text-green-600">{(product.price - product.sellingPrice).toLocaleString()}₮</span>
+                    <p className="text-sm sm:text-base text-gray-700 flex items-center gap-1.5 font-medium">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
+                      Таны хэмнэлт: <span className="text-green-600 font-bold">{(product.price - product.sellingPrice).toLocaleString()}₮</span>
                     </p>
                   </>
                 ) : (
                   <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                    <span className="text-primary">
+                    <span className="text-primary font-bold">
                       <span className="text-3xl sm:text-4xl lg:text-5xl">{product.price.toLocaleString()}</span>
-                      <span className="text-xl ml-1">₮</span>
+                      <span className="text-xl sm:text-2xl ml-1">₮</span>
                     </span>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Merchant Info Card - NEW */}
-              {storeInfo && (
-            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-1 mb-4">
-                <Store className="w-5 h-5 text-primary" />
-                <h3 className="text-base sm:text-lg text-gray-900">Борлуулагчийн мэдээлэл</h3>
-              </div>
-              
-              <div className="flex items-start gap-4 mb-4">
-                <ImageWithFallback
-                  src={storeInfo.image}
-                  alt={storeInfo.name}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-gray-100"
-                />
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base sm:text-lg text-gray-900 mb-3">{storeInfo.name}</h4>
-                  
-                  {/* Social Links */}
-                  <div className="flex items-center gap-3">
-                    {storeInfo.social.facebook && (
-                    <a
-                      href={storeInfo.social.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-[#1877F2] transition-colors group"
+            {/* Merchant Info Card - Expanded */}
+            {storeInfo && (
+              <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-4 sm:mb-5">
+                  <Store className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900">Борлуулагчийн мэдээлэл</h3>
+                </div>
+                
+                <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-5">
+                  <button
+                    onClick={() => router.push(`/stores/${product.store?.slug || ''}`)}
+                    className="flex-shrink-0 hover:opacity-80 transition-opacity active:scale-95 touch-manipulation"
+                    aria-label={`${storeInfo.name} дэлгүүр үзэх`}
+                  >
+                  <ImageWithFallback
+                    src={storeInfo.image}
+                    alt={storeInfo.name}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-gray-200 bg-gray-50 cursor-pointer"
+                  />
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <button
+                      onClick={() => router.push(`/stores/${product.store?.slug || ''}`)}
+                      className="flex items-center gap-2 mb-3 sm:mb-4 flex-wrap hover:opacity-80 transition-opacity active:scale-95 touch-manipulation group"
+                      aria-label={`${storeInfo.name} дэлгүүр үзэх`}
                     >
-                      <div className="w-7 h-7 rounded-full bg-[#1877F2]/10 group-hover:bg-[#1877F2]/20 flex items-center justify-center transition-colors">
-                        <Facebook className="w-3.5 h-3.5 text-[#1877F2]" />
-                      </div>
-                      <span className="text-xs">Facebook</span>
-                    </a>
-                    )}
-                    {storeInfo.social.instagram && (
-                    <a
-                      href={storeInfo.social.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-[#E4405F] transition-colors group"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-[#E4405F]/10 group-hover:bg-[#E4405F]/20 flex items-center justify-center transition-colors">
-                        <Instagram className="w-3.5 h-3.5 text-[#E4405F]" />
-                      </div>
-                      <span className="text-xs">Instagram</span>
-                    </a>
-                    )}
-                    {storeInfo.social.phone && (
-                    <a
-                      href={`tel:${storeInfo.social.phone}`}
-                      className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-green-600 transition-colors group"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-green-600/10 group-hover:bg-green-600/20 flex items-center justify-center transition-colors">
-                        <Phone className="w-3.5 h-3.5 text-green-600" />
-                      </div>
-                      <span className="text-xs">{storeInfo.social.phone}</span>
-                    </a>
-                    )}
+                      <h4 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 group-hover:text-primary transition-colors">{storeInfo.name}</h4>
+                      {storeInfo.verified && (
+                        <Badge className="bg-pink-500 hover:bg-pink-600 text-white text-xs px-2 py-1 shadow-sm">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Verified
+                        </Badge>
+                      )}
+                    </button>
+                    
+                    {/* Social Links & Contact - Horizontal circular buttons */}
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                      {storeInfo.social.facebook && (
+                        <a
+                          href={storeInfo.social.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-gray-700 hover:text-[#1877F2] transition-colors group touch-manipulation"
+                        >
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#1877F2]/10 group-hover:bg-[#1877F2]/20 flex items-center justify-center transition-colors">
+                            <Facebook className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#1877F2]" />
+                          </div>
+                          <span className="text-xs sm:text-sm font-medium">Facebook</span>
+                        </a>
+                      )}
+                      {storeInfo.social.instagram && (
+                        <a
+                          href={storeInfo.social.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-gray-700 hover:text-[#E4405F] transition-colors group touch-manipulation"
+                        >
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#E4405F]/10 group-hover:bg-[#E4405F]/20 flex items-center justify-center transition-colors">
+                            <Instagram className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E4405F]" />
+                          </div>
+                          <span className="text-xs sm:text-sm font-medium">Instagram</span>
+                        </a>
+                      )}
+                      {storeInfo.social.phone && (
+                        <a
+                          href={`tel:${storeInfo.social.phone}`}
+                          className="flex items-center gap-1.5 text-gray-700 hover:text-green-600 transition-colors group touch-manipulation"
+                        >
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-600/10 group-hover:bg-green-600/20 flex items-center justify-center transition-colors">
+                            <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" />
+                          </div>
+                          <span className="text-xs sm:text-sm font-medium">{storeInfo.social.phone}</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-primary text-primary hover:bg-primary/5"
-                  size="sm"
-                >
-                  <Store className="w-4 h-4 mr-2" />
-                  Дэлгүүр үзэх
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Холбоо барих
-                </Button>
-              </div>
-            </div>
             )}
 
-            {/* Guarantee Icons */}
-            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-2">
-                    <Truck className="w-6 h-6 text-primary" />
-                  </div>
-                  <span className="text-xs text-gray-900">Үнэгүй хүргэлт</span>
-                  <span className="text-xs text-gray-500">50,000₮-с дээш</span>
-                </div>
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-2">
-                    <RefreshCw className="w-6 h-6 text-primary" />
-                  </div>
-                  <span className="text-xs text-gray-900">7 хоног</span>
-                  <span className="text-xs text-gray-500">Буцаалт</span>
-                </div>
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-2">
-                    <Shield className="w-6 h-6 text-primary" />
-                  </div>
-                  <span className="text-xs text-gray-900">100% жинхэнэ</span>
-                  <span className="text-xs text-gray-500">Баталгаатай</span>
-                </div>
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-2">
-                    <CreditCard className="w-6 h-6 text-primary" />
-                  </div>
-                  <span className="text-xs text-gray-900">Аюулгүй</span>
-                  <span className="text-xs text-gray-500">Төлбөр</span>
-                </div>
+            {/* Product Description */}
+            {product.description && (
+              <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100">
+                <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
+                  Бүтээгдэхүүний тайлбар
+                </h3>
+                <div 
+                  className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: product.description.replace(/\n/g, '<br />') }}
+                />
               </div>
-            </div>
+            )}
 
-            {/* Quantity Selection */}
-            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
+            {/* Quantity & Purchase */}
+            <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100 space-y-4 sm:space-y-5">
               {/* Quantity */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm sm:text-base text-gray-900">Тоо ширхэг</span>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-2 py-1 border border-gray-200">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"
-                    >
-                      <Minus className="w-4 h-4 text-gray-600" />
-                    </button>
-                    <span className="text-base text-gray-900 min-w-[32px] text-center">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors"
-                    >
-                      <Plus className="w-4 h-4 text-gray-600" />
-                    </button>
-                  </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm sm:text-base font-medium text-gray-900">Тоо ширхэг</span>
+                <div className="flex items-center gap-2 sm:gap-3 bg-gray-50 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center hover:bg-gray-200 active:bg-gray-300 transition-all touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={quantity <= 1}
+                    aria-label="Багасгах"
+                  >
+                    <Minus className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-gray-700" />
+                  </button>
+                  <span className="text-base sm:text-lg font-bold text-gray-900 min-w-[32px] sm:min-w-[40px] text-center">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center hover:bg-gray-200 active:bg-gray-300 transition-all touch-manipulation"
+                    aria-label="Нэмэх"
+                  >
+                    <Plus className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-gray-700" />
+                  </button>
                 </div>
               </div>
 
-              {/* Total Price */}
-              <div className="pt-4 border-t border-gray-100">
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Барааны үнэ:</span>
-                    <span className="text-base text-gray-900">
-                      {(displayPrice * quantity).toLocaleString()}₮
-                    </span>
-                  </div>
-                  {storeInfo && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Хүргэлт:</span>
-                      <span className="text-base text-gray-900">
-                        {storeInfo.delivery_price.toLocaleString()}₮
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                  <span className="text-base text-gray-700 font-semibold">Нийт үнэ:</span>
-                  <span className="text-2xl sm:text-3xl text-primary font-bold">
+              {/* Total Price - Compact */}
+              <div className="pt-4 sm:pt-5 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-4 sm:mb-5">
+                  <span className="text-sm sm:text-base text-gray-600 font-medium">Нийт үнэ:</span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xl sm:text-2xl lg:text-3xl text-primary font-bold">
                     {((displayPrice * quantity) + (storeInfo?.delivery_price || 5000)).toLocaleString()}₮
                   </span>
+                    {storeInfo?.delivery_price && (
+                      <span className="text-xs text-gray-500 mt-0.5">
+                        (Хүргэлт: {storeInfo.delivery_price.toLocaleString()}₮)
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="hidden lg:flex flex-col gap-3">
                   <Button
-                    className="flex-1 bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl h-12 sm:h-14 transition-all hover:scale-105"
+                    className="w-full bg-gradient-to-r from-primary to-[#B24167] hover:from-primary/90 hover:to-[#B24167]/90 rounded-xl h-12 sm:h-14 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] font-semibold text-base"
+                    size="lg"
+                    onClick={handleBuyNow}
+                  >
+                    Худалдаж авах
+                  </Button>
+                  <Button
+                    className="w-full bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl h-12 sm:h-14 transition-all hover:scale-[1.02] active:scale-[0.98] font-semibold text-base"
                     size="lg"
                     onClick={handleAddToCart}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
                     Сагсанд нэмэх
-                  </Button>
-                  <Button
-                    className="flex-1 bg-gradient-to-r from-primary to-[#B24167] hover:from-primary/90 hover:to-[#B24167]/90 rounded-xl h-12 sm:h-14 shadow-lg shadow-primary/20 transition-all hover:scale-105"
-                    size="lg"
-                    onClick={handleBuyNow}
-                  >
-                    Худалдаж авах
                   </Button>
                 </div>
               </div>
@@ -610,158 +592,158 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
         </div>
 
         {/* Tabs Section */}
-        <div className="bg-white rounded-2xl shadow-sm mb-6 lg:mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 lg:mb-8">
           <Tabs defaultValue="description" className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0 overflow-x-auto">
+            <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0 overflow-x-auto scrollbar-hide">
               <TabsTrigger
                 value="description"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-6 lg:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap text-sm sm:text-base font-medium transition-all touch-manipulation"
               >
                 Дэлгэрэнгүй
               </TabsTrigger>
               <TabsTrigger
                 value="specs"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-6 lg:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap text-sm sm:text-base font-medium transition-all touch-manipulation"
               >
                 Тодорхойлолт
               </TabsTrigger>
               <TabsTrigger
                 value="reviews"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-6 lg:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap text-sm sm:text-base font-medium transition-all touch-manipulation"
               >
                 Сэтгэгдэл ({reviews.length})
               </TabsTrigger>
               <TabsTrigger
                 value="shipping"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 sm:px-6 lg:px-8 py-3 sm:py-4 data-[state=active]:text-primary whitespace-nowrap text-sm sm:text-base font-medium transition-all touch-manipulation"
               >
                 Хүргэлт
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="description" className="p-4 sm:p-8">
+            <TabsContent value="description" className="p-4 sm:p-6 lg:p-8">
               <div className="prose max-w-none">
-                <h3 className="text-lg lg:text-xl text-gray-900 mb-4">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-5">
                   Бүтээгдэхүүний тайлбар
                 </h3>
                 {product.description ? (
                   <div 
-                    className="text-sm lg:text-base text-gray-600 leading-relaxed mb-4 whitespace-pre-wrap"
+                    className="text-sm sm:text-base lg:text-lg text-gray-700 leading-relaxed mb-6 sm:mb-8 whitespace-pre-wrap"
                     dangerouslySetInnerHTML={{ __html: product.description.replace(/\n/g, '<br />') }}
                   />
                 ) : (
-                  <p className="text-sm lg:text-base text-gray-600 leading-relaxed mb-4">
+                  <p className="text-sm sm:text-base lg:text-lg text-gray-700 leading-relaxed mb-6 sm:mb-8">
                     {product.title} нь өндөр чанартай материалаар хийгдсэн бөгөөд таны хэрэгцээнд тохирсон төгс бүтээгдэхүүн юм. Энэхүү бүтээгдэхүүн нь дэлхийн жишигт нийцсэн бөгөөд урт хугацаанд ашиглах боломжтой.
                   </p>
                 )}
-                <h4 className="text-base lg:text-lg text-gray-900 mb-3">
+                <h4 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
                   Онцлог шинж чанарууд:
                 </h4>
-                <ul className="space-y-2 text-sm lg:text-base text-gray-600">
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <ul className="space-y-3 sm:space-y-4 text-sm sm:text-base lg:text-lg text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <Check className="w-5 h-5 sm:w-6 sm:h-6 text-primary mt-0.5 flex-shrink-0" />
                     <span>Өндөр чанартай материал ашигласан</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <li className="flex items-start gap-3">
+                    <Check className="w-5 h-5 sm:w-6 sm:h-6 text-primary mt-0.5 flex-shrink-0" />
                     <span>Орчин үеийн дизайн, загвартай</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <li className="flex items-start gap-3">
+                    <Check className="w-5 h-5 sm:w-6 sm:h-6 text-primary mt-0.5 flex-shrink-0" />
                     <span>Урт хугацаанд ашиглах боломжтой</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <li className="flex items-start gap-3">
+                    <Check className="w-5 h-5 sm:w-6 sm:h-6 text-primary mt-0.5 flex-shrink-0" />
                     <span>Байгаль орчинд ээлтэй</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <li className="flex items-start gap-3">
+                    <Check className="w-5 h-5 sm:w-6 sm:h-6 text-primary mt-0.5 flex-shrink-0" />
                     <span>Олон хувбар сонголттой</span>
                   </li>
                 </ul>
               </div>
             </TabsContent>
 
-            <TabsContent value="specs" className="p-4 sm:p-8">
-              <div className="space-y-4">
-                <h3 className="text-lg lg:text-xl text-gray-900 mb-4">
-                  Тхникийн тодорхойлолт
+            <TabsContent value="specs" className="p-4 sm:p-6 lg:p-8">
+              <div className="space-y-4 sm:space-y-6">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+                  Техникийн тодорхойлолт
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex justify-between py-3 border-b border-gray-100">
-                    <span className="text-sm lg:text-base text-gray-600">Барааны код</span>
-                    <span className="text-sm lg:text-base text-gray-900">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="flex justify-between items-center py-3 sm:py-4 px-3 sm:px-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/30 transition-colors">
+                    <span className="text-sm sm:text-base text-gray-600 font-medium">Барааны код</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">
                       #{product.id.toString().padStart(6, '0')}
                     </span>
                   </div>
-                  <div className="flex justify-between py-3 border-b border-gray-100">
-                    <span className="text-sm lg:text-base text-gray-600">Хувилбар</span>
-                    <span className="text-sm lg:text-base text-gray-900">
+                  <div className="flex justify-between items-center py-3 sm:py-4 px-3 sm:px-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/30 transition-colors">
+                    <span className="text-sm sm:text-base text-gray-600 font-medium">Хувилбар</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">
                       {product.colorImages.length} төрөл
                     </span>
                   </div>
-                  <div className="flex justify-between py-3 border-b border-gray-100">
-                    <span className="text-sm lg:text-base text-gray-600">орлуулагч</span>
-                    <span className="text-sm lg:text-base text-gray-900">{storeInfo?.name || 'Тодорхойгүй'}</span>
+                  <div className="flex justify-between items-center py-3 sm:py-4 px-3 sm:px-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/30 transition-colors">
+                    <span className="text-sm sm:text-base text-gray-600 font-medium">Борлуулагч</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">{storeInfo?.name || 'Тодорхойгүй'}</span>
                   </div>
-                  <div className="flex justify-between py-3 border-b border-gray-100">
-                    <span className="text-sm lg:text-base text-gray-600">Гарал үүсэл</span>
-                    <span className="text-sm lg:text-base text-gray-900">Монгол</span>
+                  <div className="flex justify-between items-center py-3 sm:py-4 px-3 sm:px-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/30 transition-colors">
+                    <span className="text-sm sm:text-base text-gray-600 font-medium">Гарал үүсэл</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">Монгол</span>
                   </div>
-                  <div className="flex justify-between py-3 border-b border-gray-100">
-                    <span className="text-sm lg:text-base text-gray-600">Баталга</span>
-                    <span className="text-sm lg:text-base text-gray-900">30 хоног</span>
+                  <div className="flex justify-between items-center py-3 sm:py-4 px-3 sm:px-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/30 transition-colors">
+                    <span className="text-sm sm:text-base text-gray-600 font-medium">Баталгаа</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">30 хоног</span>
                   </div>
-                  <div className="flex justify-between py-3 border-b border-gray-100">
-                    <span className="text-sm lg:text-base text-gray-600">Нөхцөл</span>
-                    <span className="text-sm lg:text-base text-gray-900">Шинэ</span>
+                  <div className="flex justify-between items-center py-3 sm:py-4 px-3 sm:px-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/30 transition-colors">
+                    <span className="text-sm sm:text-base text-gray-600 font-medium">Нөхцөл</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-900 font-semibold">Шинэ</span>
                   </div>
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="reviews" className="p-4 sm:p-8">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg lg:text-xl text-gray-900">Худадан авагчийн сэтгэгдэл</h3>
-                  <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                    <span className="text-base lg:text-lg">4.9</span>
-                    <span className="text-sm text-gray-500">({reviews.length})</span>
+            <TabsContent value="reviews" className="p-4 sm:p-6 lg:p-8">
+              <div className="space-y-6 sm:space-y-8">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Худалдан авагчийн сэтгэгдэл</h3>
+                  <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
+                    <Star className="w-5 h-5 sm:w-6 sm:h-6 fill-amber-400 text-amber-400" />
+                    <span className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">4.9</span>
+                    <span className="text-sm sm:text-base text-gray-600">({reviews.length})</span>
                   </div>
                 </div>
 
                 {/* Review Cards */}
-                <div className="space-y-4">
+                <div className="space-y-4 sm:space-y-5">
                   {reviews.map((review) => (
                     <div
                       key={review.id}
-                      className="bg-gray-50 rounded-xl p-4 lg:p-5 border border-gray-100 hover:border-primary/20 transition-colors"
+                      className="bg-gray-50 rounded-xl p-4 sm:p-5 lg:p-6 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-200"
                     >
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-3 sm:gap-4">
                         <ImageWithFallback
                           src={review.image}
                           alt={review.author}
-                          className="w-12 h-12 lg:w-16 lg:h-16 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm"
+                          className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-sm"
                         />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm lg:text-base text-gray-900">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-2 sm:mb-3 flex-wrap gap-2">
+                            <span className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">
                               {review.author}
                             </span>
-                            <span className="text-xs lg:text-sm text-gray-500">
+                            <span className="text-xs sm:text-sm text-gray-500">
                               {review.date}
                             </span>
                           </div>
-                          <div className="flex mb-2">
+                          <div className="flex mb-2 sm:mb-3 gap-0.5">
                             {[...Array(review.rating)].map((_, i) => (
                               <Star
                                 key={i}
-                                className="w-3.5 h-3.5 lg:w-4 lg:h-4 fill-amber-400 text-amber-400"
+                                className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 fill-amber-400 text-amber-400"
                               />
                             ))}
                           </div>
-                          <p className="text-xs lg:text-sm text-gray-600 leading-relaxed">
+                          <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                             {review.comment}
                           </p>
                         </div>
@@ -772,38 +754,44 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
               </div>
             </TabsContent>
 
-            <TabsContent value="shipping" className="p-4 sm:p-8">
-              <div className="space-y-6">
-                <h3 className="text-lg lg:text-xl text-gray-900 mb-4">
+            <TabsContent value="shipping" className="p-4 sm:p-6 lg:p-8">
+              <div className="space-y-6 sm:space-y-8">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
                   Хүргэлтийн мэдээлэл
                 </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-4">
-                    <Truck className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="text-base text-gray-900 mb-1">Хүргэлтийн хугацаа</h4>
-                      <p className="text-sm text-gray-600">
-                        Улаанбаатар хот: 1-2 хоног<br />
-                        Орон нутаг: 3-5 хоног
+                <div className="space-y-4 sm:space-y-5">
+                  <div className="flex items-start gap-3 sm:gap-4 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-4 sm:p-5 border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Хүргэлтийн хугацаа</h4>
+                      <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                        Улаанбаатар хот: <span className="font-semibold text-primary">1-2 хоног</span><br />
+                        Орон нутаг: <span className="font-semibold text-primary">3-5 хоног</span>
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-4">
-                    <CreditCard className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="text-base text-gray-900 mb-1">Хүргэлтийн зардал</h4>
-                      <p className="text-sm text-gray-600">
-                        50,000₮-с дээш захиалгад үнэгүй<br />
-                        50,000₮-с доош: 5,000₮
+                  <div className="flex items-start gap-3 sm:gap-4 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-4 sm:p-5 border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Хүргэлтийн зардал</h4>
+                      <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                        <span className="font-semibold text-green-600">50,000₮-с дээш</span> захиалгад үнэгүй<br />
+                        50,000₮-с доош: <span className="font-semibold">{storeInfo?.delivery_price?.toLocaleString() || '5,000'}₮</span>
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-4">
-                    <RefreshCw className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="text-base text-gray-900 mb-1">Буцаалтын бодлого</h4>
-                      <p className="text-sm text-gray-600">
-                        7 хоногийн дотор эх хэвээр нь буцаах боломжтой<br />
+                  <div className="flex items-start gap-3 sm:gap-4 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-4 sm:p-5 border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Буцаалтын бодлого</h4>
+                      <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                        <span className="font-semibold text-primary">7 хоногийн дотор</span> эх хэвээр нь буцаах боломжтой<br />
                         Буцаалтын зардал: Худалдан авагч хариуцна
                       </p>
                     </div>
@@ -815,11 +803,12 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
         </div>
 
         {/* Similar Products Section */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 mb-6 lg:mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-900">Ижил төстэй бараанууд</h3>
-            <button className="text-sm text-primary hover:text-primary/80 transition-colors">
-              Бүгдийг үзэх →
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 lg:p-6 mb-6 lg:mb-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-3">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Ижил төстэй бараанууд</h3>
+            <button className="text-sm sm:text-base text-primary hover:text-primary/80 transition-colors font-medium flex items-center gap-1 group">
+              Бүгдийг үзэх
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
@@ -889,34 +878,40 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
       </div>
 
       {/* Mobile Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-2">
-            <button className="hidden lg:flex flex-col items-center justify-center p-2 min-w-[60px] hover:bg-gray-50 rounded-lg transition-colors">
-              <MessageCircle className="w-5 h-5 text-gray-600 mb-0.5" />
-              <span className="text-[10px] text-gray-600">Холбоо барих</span>
-            </button>
-            <button className="hidden lg:flex flex-col items-center justify-center p-2 min-w-[60px] hover:bg-gray-50 rounded-lg transition-colors">
-              <Heart className="w-5 h-5 text-gray-600 mb-0.5" />
-              <span className="text-[10px] text-gray-600">Хадгалах</span>
-            </button>
-            <div className="flex-1 flex gap-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-2xl z-50 safe-area-inset-bottom">
+        <div className="px-4 py-3 sm:py-4">
+          {/* Price Display - Mobile */}
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-500">Нийт үнэ</span>
+              <span className="text-lg sm:text-xl font-bold text-primary">
+                {((displayPrice * quantity) + (storeInfo?.delivery_price || 5000)).toLocaleString()}₮
+              </span>
+            </div>
+            {discountPercentage > 0 && (
+              <Badge className="bg-red-500 text-white text-xs px-2 py-1">
+                -{discountPercentage}%
+              </Badge>
+            )}
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 sm:gap-3">
               <Button
-                className="flex-1 bg-white border-2 border-primary text-primary hover:bg-primary/5 rounded-xl h-11"
+              className="flex-1 bg-white border-2 border-primary text-primary hover:bg-primary/5 active:bg-primary/10 rounded-xl h-12 sm:h-14 transition-all active:scale-95 font-semibold"
                 size="sm"
                 onClick={handleAddToCart}
               >
-                <ShoppingCart className="w-4 h-4 mr-1.5" />
-                <span className="text-xs sm:text-sm">Сагсанд</span>
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              <span className="text-sm sm:text-base">Сагсанд</span>
               </Button>
               <Button
-                className="flex-1 bg-gradient-to-r from-primary to-[#B24167] hover:from-primary/90 hover:to-[#B24167]/90 rounded-xl h-11 shadow-lg shadow-primary/20"
+              className="flex-1 bg-gradient-to-r from-primary to-[#B24167] hover:from-primary/90 hover:to-[#B24167]/90 active:from-primary/80 active:to-[#B24167]/80 rounded-xl h-12 sm:h-14 shadow-lg shadow-primary/20 transition-all active:scale-95 font-semibold"
                 size="sm"
                 onClick={handleBuyNow}
               >
-                <span className="text-xs sm:text-sm">Худадаж авах</span>
+              <span className="text-sm sm:text-base">Худалдаж авах</span>
               </Button>
-            </div>
           </div>
         </div>
       </div>

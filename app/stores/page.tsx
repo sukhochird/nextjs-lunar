@@ -8,9 +8,9 @@ function StoresPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleStoreClick = (storeId: number, storeName: string) => {
-    // Navigate to home with store filter
-    router.push(`/?storeId=${storeId}&storeName=${encodeURIComponent(storeName)}`);
+  const handleStoreClick = (storeId: number, storeName: string, storeSlug: string) => {
+    // Navigate to store profile page
+    router.push(`/stores/${storeSlug}`);
   };
 
   return (

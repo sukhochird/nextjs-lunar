@@ -120,12 +120,6 @@ export function Header({ onMenuClick, onStoreListClick, onCartClick, cartItemsCo
               <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                 <Badge
                   variant="secondary"
-                  className="bg-red-50 text-red-600 hover:bg-red-50 text-[10px] sm:text-xs px-1.5 sm:px-2"
-                >
-                  Customized order
-                </Badge>
-                <Badge
-                  variant="secondary"
                   className="bg-orange-50 text-orange-600 hover:bg-orange-50 text-[10px] sm:text-xs px-1.5 sm:px-2"
                 >
                   Шуурхай хүргэлт
@@ -134,7 +128,7 @@ export function Header({ onMenuClick, onStoreListClick, onCartClick, cartItemsCo
                   variant="secondary"
                   className="bg-blue-50 text-blue-600 hover:bg-blue-50 text-[10px] sm:text-xs px-1.5 sm:px-2"
                 >
-                  Топ 1
+                  Хялбар захиалга
                 </Badge>
               </div>
             </div>
@@ -183,18 +177,40 @@ export function Header({ onMenuClick, onStoreListClick, onCartClick, cartItemsCo
         {/* Navigation Tabs */}
         <div className="border-t border-gray-100 pt-2 sm:pt-3 -mx-3 sm:-mx-6 px-3 sm:px-6">
           <nav className="flex items-center gap-4 sm:gap-8 overflow-x-auto scrollbar-hide">
-            {tabs.map((tab, index) => (
-              <button
-                key={tab}
-                className={`pb-2 text-xs sm:text-sm transition-colors whitespace-nowrap flex-shrink-0 ${
-                  index === 0
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-gray-600 hover:text-primary"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+            {tabs.map((tab, index) => {
+              const getHref = () => {
+                switch (tab) {
+                  case "Нүүр хуудас":
+                    return "/";
+                  case "Шинэ бүтээгдэхүүн":
+                    return "/?filter=new";
+                  case "Их борлуулалттай":
+                    return "/?filter=bestsellers";
+                  case "Ангилал":
+                    return "/categories";
+                  case "Купон":
+                    return "/coupons";
+                  case "VIP бүс":
+                    return "/vip";
+                  default:
+                    return "#";
+                }
+              };
+
+              return (
+                <a
+                  key={tab}
+                  href={getHref()}
+                  className={`pb-2 text-xs sm:text-sm transition-colors whitespace-nowrap flex-shrink-0 ${
+                    index === 0
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-gray-600 hover:text-primary"
+                  }`}
+                >
+                  {tab}
+                </a>
+              );
+            })}
           </nav>
         </div>
       </div>

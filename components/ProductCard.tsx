@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Badge } from "./ui/badge";
+import { fetchStore, Store } from "@/lib/api";
 
 interface ProductCardProps {
   image: string;
@@ -10,6 +11,8 @@ interface ProductCardProps {
   sellingPrice?: number;
   discountPercentage?: number;
   colorImages: string[];
+  storeId: number;
+  store?: Store;
   onClick?: () => void;
 }
 
@@ -21,10 +24,37 @@ export function ProductCard({
   sellingPrice,
   discountPercentage,
   colorImages,
+  storeId,
+  store: storeProp,
   onClick,
 }: ProductCardProps) {
   const [currentImage, setCurrentImage] = useState(image);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [store, setStore] = useState<Store | null>(storeProp || null);
+
+  useEffect(() => {
+    if (storeProp) {
+      setStore(storeProp);
+    } else {
+      // Fallback: fetch store if not provided
+      async function loadStore() {
+        try {
+          const storesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/stores/`);
+          if (storesResponse.ok) {
+            const storesData = await storesResponse.json();
+            const storeList = storesData.results || storesData;
+            const foundStore = storeList.find((s: Store) => s.id === storeId);
+            if (foundStore) {
+              setStore(foundStore);
+            }
+          }
+        } catch (err) {
+          console.error('Error loading store:', err);
+        }
+      }
+      loadStore();
+    }
+  }, [storeId, storeProp]);
 
   return (
     <div className="bg-white rounded-lg overflow-hidden cursor-pointer group" onClick={onClick}>
@@ -68,9 +98,28 @@ export function ProductCard({
         </div>
 
         {/* Product Title */}
-        <h3 className="text-xs sm:text-sm text-gray-900 mb-0 line-clamp-2 min-h-[2.5rem] sm:min-h-[2.5rem]">
+        <h3 className="text-base sm:text-sm text-gray-900 mb-0 line-clamp-2">
           {title}
         </h3>
+
+        {/* Seller Info */}
+        {store && (
+          <div className="flex items-center gap-1.5 mb-1.5 mt-0.5">
+            <img
+              src={store.image}
+              alt={store.name}
+              className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0"
+            />
+            <span className="text-[10px] sm:text-xs text-gray-600 truncate">
+              {store.name}
+            </span>
+            {store.verified && (
+              <Badge className="bg-pink-500 hover:bg-pink-500 text-[8px] sm:text-[10px] px-1 py-0 h-3 sm:h-4">
+                ✓
+              </Badge>
+            )}
+          </div>
+        )}
 
         {/* Price */}
         <div className="flex flex-col gap-0.5">

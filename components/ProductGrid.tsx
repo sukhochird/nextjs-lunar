@@ -5,7 +5,7 @@ import { Badge } from "./ui/badge";
 import { X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
-import { fetchProducts, convertProduct } from "@/lib/api";
+import { fetchProducts, convertProduct, fetchStores, Store } from "@/lib/api";
 
 interface Product {
   id: number;
@@ -32,6 +32,7 @@ export function ProductGrid({ onProductClick, storeId, storeName, categorySlug, 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stores, setStores] = useState<Map<number, Store>>(new Map());
 
   useEffect(() => {
     async function loadProducts() {
@@ -45,6 +46,24 @@ export function ProductGrid({ onProductClick, storeId, storeName, categorySlug, 
         });
         const convertedProducts = data.results.map(convertProduct);
         setProducts(convertedProducts);
+
+        // Fetch stores for all unique storeIds
+        const uniqueStoreIds = [...new Set(convertedProducts.map(p => p.storeId))];
+        if (uniqueStoreIds.length > 0) {
+          try {
+            const storesData = await fetchStores();
+            const storeList = storesData.results || storesData;
+            const storeMap = new Map<number, Store>();
+            storeList.forEach((store: Store) => {
+              if (uniqueStoreIds.includes(store.id)) {
+                storeMap.set(store.id, store);
+              }
+            });
+            setStores(storeMap);
+          } catch (storeErr) {
+            console.error('Error loading stores:', storeErr);
+          }
+        }
       } catch (err) {
         console.error('Error loading products:', err);
         setError('Бүтээгдэхүүн ачааллахад алдаа гарлаа');
@@ -125,7 +144,9 @@ export function ProductGrid({ onProductClick, storeId, storeName, categorySlug, 
             {products.map((product) => (
               <ProductCard 
                 key={product.id} 
-                {...product} 
+                {...product}
+                storeId={product.storeId}
+                store={stores.get(product.storeId) || undefined}
                 onClick={() => onProductClick(product)}
               />
             ))}

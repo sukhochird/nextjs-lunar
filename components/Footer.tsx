@@ -1,136 +1,61 @@
 'use client';
 
-import { Facebook, Instagram, Mail, Phone, MapPin, CreditCard, Truck, Shield, Award } from 'lucide-react';
+import { CreditCard, Truck, Shield, Award, Phone, Mail, MapPin } from 'lucide-react';
+import logoImage from "@/assets/logo.png";
 
 export function Footer() {
   return (
     <footer className="hidden sm:block bg-white border-t border-gray-200 mt-12">
       <div className="max-w-[1400px] mx-auto px-3 sm:px-6 py-8 sm:py-12">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* About Section */}
-          <div>
-            <h3 className="text-gray-900 mb-4">Цагаан сарын цахим экспо</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Цагаан сарын цахим экспо
-            </p>
-            <div className="flex items-center gap-3">
-              <a
-                href="#"
-                className="w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                className="w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                className="w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
-              >
-                <Mail className="w-4 h-4" />
-              </a>
+        {/* Logo and Contact Info */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 pb-8 border-b border-gray-200">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <img
+              src={typeof logoImage === 'string' ? logoImage : logoImage.src}
+              alt="Цагаан сарын цахим экспо"
+              className="h-12 sm:h-16 object-cover"
+            />
+            <div>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Цагаан сарын цахим экспо</h2>
+              <p className="text-sm text-gray-500">Онлайн дэлгүүр</p>
             </div>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="text-gray-900 mb-4">Үйлчилгээ</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Захиалгын дэлгэрэнгүй
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Хүргэлтийн мэдээлэл
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Буцаах болон солих
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Баталгаат үйл��илгээ
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Түгээмэл асуулт
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-gray-900 mb-4">Холбоосууд</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Бидний тухай
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Дэлгүүрийн байршил
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Үйлчилгээний нөхцөл
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Нууцлалын бодлого
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-primary transition-colors">
-                  Холбоо барих
-                </a>
-              </li>
-            </ul>
-          </div>
-
           {/* Contact Info */}
-          <div>
-            <h3 className="text-gray-900 mb-4">Холбогдох</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <Phone className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-600">+976 7777-7777</p>
-                  <p className="text-xs text-gray-500">Даваа - Баасан 9:00-18:00</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <Mail className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-600">info@tsagaan-sar.mn</p>
-              </li>
-              <li className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-600">Улаанбаатар хот, Сүхбаатар дүүрэг</p>
-              </li>
-            </ul>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-xs text-gray-500">Утас</p>
+                <p className="text-sm text-gray-900">99429967</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-xs text-gray-500">Имэйл</p>
+                <p className="text-sm text-gray-900">dsukhochir@gmail.com</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-xs text-gray-500">Хаяг</p>
+                <p className="text-sm text-gray-900">Улаанбаатар хот</p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Features Bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-6 border-y border-gray-200 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-6 border-b border-gray-200 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
               <Truck className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-gray-900">Үнэгүй хүргэлт</p>
+              <p className="text-sm text-gray-900">Шуурхай хүргэлт</p>
               <p className="text-xs text-gray-500">50,000₮-с дээш</p>
             </div>
           </div>

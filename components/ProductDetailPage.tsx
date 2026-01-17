@@ -96,7 +96,7 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
     verified: product.store.verified || false,
     delivery_price: typeof product.store.delivery_price === 'number' 
       ? product.store.delivery_price 
-      : (product.store.delivery_price ? parseFloat(String(product.store.delivery_price)) || 5000 : 5000),
+      : (product.store.delivery_price ? parseFloat(String(product.store.delivery_price)) || 0 : 0),
     badges: product.store.tags?.map((tag: any) => tag.name) || [],
     social: {
       facebook: product.store.social?.facebook || '',
@@ -647,13 +647,15 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
                   <span className="text-sm sm:text-base text-gray-600 font-medium">Нийт үнэ:</span>
                   <div className="flex flex-col items-end">
                     <span className="text-xl sm:text-2xl lg:text-3xl text-primary font-bold">
-                    {((displayPrice * quantity) + (storeInfo?.delivery_price || 5000)).toLocaleString()}₮
+                    {((displayPrice * quantity) + (storeInfo?.delivery_price || 0)).toLocaleString()}₮
                   </span>
-                    {storeInfo?.delivery_price && (
-                      <span className="text-xs text-gray-500 mt-0.5">
-                        (Хүргэлт: {storeInfo.delivery_price.toLocaleString()}₮)
-                      </span>
-                    )}
+                    <span className="text-xs text-gray-500 mt-0.5">
+                      {storeInfo?.delivery_price && storeInfo.delivery_price > 0 ? (
+                        `(Хүргэлт: ${storeInfo.delivery_price.toLocaleString()}₮)`
+                      ) : (
+                        '(Хүргэлт үнэгүй)'
+                      )}
+                    </span>
                   </div>
                 </div>
 
@@ -868,8 +870,14 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
                     <div className="flex-1">
                       <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Хүргэлтийн зардал</h4>
                       <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                        <span className="font-semibold text-green-600">50,000₮-с дээш</span> захиалгад үнэгүй<br />
-                        50,000₮-с доош: <span className="font-semibold">{storeInfo?.delivery_price?.toLocaleString() || '5,000'}₮</span>
+                        {storeInfo?.delivery_price && storeInfo.delivery_price > 0 ? (
+                          <>
+                            <span className="font-semibold text-green-600">50,000₮-с дээш</span> захиалгад үнэгүй<br />
+                            50,000₮-с доош: <span className="font-semibold">{storeInfo.delivery_price.toLocaleString()}₮</span>
+                          </>
+                        ) : (
+                          <span className="font-semibold text-green-600">Хүргэлт үнэгүй</span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -974,7 +982,14 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
             <div className="flex flex-col">
               <span className="text-xs text-gray-500">Нийт үнэ</span>
               <span className="text-lg sm:text-xl font-bold text-primary">
-                {((displayPrice * quantity) + (storeInfo?.delivery_price || 5000)).toLocaleString()}₮
+                {((displayPrice * quantity) + (storeInfo?.delivery_price || 0)).toLocaleString()}₮
+              </span>
+              <span className="text-[10px] text-gray-400 mt-0.5">
+                {storeInfo?.delivery_price && storeInfo.delivery_price > 0 ? (
+                  `Хүргэлт: ${storeInfo.delivery_price.toLocaleString()}₮`
+                ) : (
+                  'Хүргэлт үнэгүй'
+                )}
               </span>
             </div>
             {discountPercentage > 0 && (

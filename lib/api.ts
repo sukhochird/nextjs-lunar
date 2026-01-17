@@ -22,6 +22,9 @@ export interface Product {
   discount_percentage?: number;
   selling_price?: number;
   options?: ProductOption[];
+  min_price?: number;
+  max_price?: number;
+  has_options?: boolean;
 }
 
 export interface ProductDetail extends Product {
@@ -85,10 +88,16 @@ export function convertProduct(apiProduct: Product): {
   sales: number;
   colorImages: string[];
   storeId: number;
+  minPrice?: number;
+  maxPrice?: number;
+  hasOptions?: boolean;
 } {
   const basePrice = parseFloat(apiProduct.price);
   const discountPercentage = apiProduct.discount_percentage || 0;
   const sellingPrice = apiProduct.selling_price || basePrice;
+  const hasOptions = apiProduct.has_options || false;
+  const minPrice = apiProduct.min_price;
+  const maxPrice = apiProduct.max_price;
   
   return {
     id: apiProduct.id,
@@ -101,6 +110,9 @@ export function convertProduct(apiProduct: Product): {
     sales: (apiProduct as any).sales || 0,
     colorImages: apiProduct.color_images.length > 0 ? apiProduct.color_images : [apiProduct.image || ''],
     storeId: apiProduct.store_id,
+    minPrice: minPrice ? parseFloat(minPrice.toString()) : undefined,
+    maxPrice: maxPrice ? parseFloat(maxPrice.toString()) : undefined,
+    hasOptions,
   };
 }
 

@@ -65,6 +65,9 @@ interface Product {
   description?: string; // Product description from API
   category?: any; // Category object from API
   options?: ProductOption[]; // Product options
+  minPrice?: number;
+  maxPrice?: number;
+  hasOptions?: boolean;
 }
 
 interface ProductDetailPageProps {
@@ -422,11 +425,32 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
 
               {/* Price */}
               <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-xl p-4 sm:p-5 border-2 border-primary/20 shadow-sm">
-                {discountPercentage > 0 && product.sellingPrice ? (
+                {product.options && product.options.length > 0 && selectedOption === null ? (
+                  // Show price range when options exist but none selected
+                  <div className="flex items-baseline gap-3 mb-2 flex-wrap">
+                    <span className="text-primary font-bold">
+                      {product.minPrice !== undefined && product.maxPrice !== undefined && product.minPrice !== product.maxPrice ? (
+                        <>
+                          <span className="text-3xl sm:text-4xl lg:text-5xl">{product.minPrice.toLocaleString()}</span>
+                          <span className="text-xl sm:text-2xl ml-1">₮</span>
+                          <span className="text-xl sm:text-2xl mx-2">-</span>
+                          <span className="text-3xl sm:text-4xl lg:text-5xl">{product.maxPrice.toLocaleString()}</span>
+                          <span className="text-xl sm:text-2xl ml-1">₮</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-3xl sm:text-4xl lg:text-5xl">{(product.minPrice || product.price).toLocaleString()}</span>
+                          <span className="text-xl sm:text-2xl ml-1">₮</span>
+                        </>
+                      )}
+                    </span>
+                    <p className="text-sm text-gray-600 mt-2">Сонголт хийх шаардлагатай</p>
+                  </div>
+                ) : discountPercentage > 0 && product.sellingPrice ? (
                   <>
                     <div className="flex items-baseline gap-3 mb-2 sm:mb-3 flex-wrap">
                       <span className="text-primary font-bold">
-                        <span className="text-3xl sm:text-4xl lg:text-5xl">{product.sellingPrice.toLocaleString()}</span>
+                        <span className="text-3xl sm:text-4xl lg:text-5xl">{displayPrice.toLocaleString()}</span>
                         <span className="text-xl sm:text-2xl ml-1">₮</span>
                       </span>
                       <span className="text-gray-400 line-through text-lg sm:text-xl lg:text-2xl">
@@ -438,13 +462,13 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
                     </div>
                     <p className="text-sm sm:text-base text-gray-700 flex items-center gap-1.5 font-medium">
                       <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
-                      Таны хэмнэлт: <span className="text-green-600 font-bold">{(product.price - product.sellingPrice).toLocaleString()}₮</span>
+                      Таны хэмнэлт: <span className="text-green-600 font-bold">{(product.price - displayPrice).toLocaleString()}₮</span>
                     </p>
                   </>
                 ) : (
                   <div className="flex items-baseline gap-3 mb-2 flex-wrap">
                     <span className="text-primary font-bold">
-                      <span className="text-3xl sm:text-4xl lg:text-5xl">{product.price.toLocaleString()}</span>
+                      <span className="text-3xl sm:text-4xl lg:text-5xl">{displayPrice.toLocaleString()}</span>
                       <span className="text-xl sm:text-2xl ml-1">₮</span>
                     </span>
                   </div>

@@ -13,6 +13,9 @@ interface ProductCardProps {
   colorImages: string[];
   storeId: number;
   store?: Store;
+  minPrice?: number;
+  maxPrice?: number;
+  hasOptions?: boolean;
   onClick?: () => void;
 }
 
@@ -26,6 +29,9 @@ export function ProductCard({
   colorImages,
   storeId,
   store: storeProp,
+  minPrice,
+  maxPrice,
+  hasOptions,
   onClick,
 }: ProductCardProps) {
   const [currentImage, setCurrentImage] = useState(image);
@@ -123,7 +129,18 @@ export function ProductCard({
 
         {/* Price */}
         <div className="flex flex-col gap-0.5">
-          {discountPercentage && discountPercentage > 0 && sellingPrice ? (
+          {hasOptions && minPrice !== undefined && maxPrice !== undefined && minPrice !== maxPrice ? (
+            // Show price range when options exist
+            <div className="flex items-baseline gap-1 sm:gap-2 flex-wrap">
+              <span className="text-[#912F56]">
+                <span className="text-base sm:text-xl">{minPrice.toLocaleString()}</span>
+                <span className="text-xs sm:text-sm">₮</span>
+                <span className="text-xs sm:text-sm mx-1">-</span>
+                <span className="text-base sm:text-xl">{maxPrice.toLocaleString()}</span>
+                <span className="text-xs sm:text-sm">₮</span>
+              </span>
+            </div>
+          ) : discountPercentage && discountPercentage > 0 && sellingPrice ? (
             <div className="flex items-baseline gap-1 sm:gap-2 flex-wrap">
               <span className="text-[#912F56]">
                 <span className="text-base sm:text-xl">{sellingPrice.toLocaleString()}</span>

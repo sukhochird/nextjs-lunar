@@ -74,6 +74,9 @@ export default function ProductPage() {
           description: apiProduct.description || '', // Include description from API
           category: apiProduct.category, // Include category from API
           options: apiProduct.options || [], // Include product options
+          minPrice: apiProduct.min_price ? parseFloat(apiProduct.min_price.toString()) : undefined,
+          maxPrice: apiProduct.max_price ? parseFloat(apiProduct.max_price.toString()) : undefined,
+          hasOptions: apiProduct.has_options || false,
         };
         
         setProduct(convertedProduct);

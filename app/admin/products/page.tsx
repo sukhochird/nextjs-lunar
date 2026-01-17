@@ -73,6 +73,7 @@ export default function ProductsPage() {
   const [mainImagePreview, setMainImagePreview] = useState<string>('');
   const [productImages, setProductImages] = useState<File[]>([]);
   const [productImagePreviews, setProductImagePreviews] = useState<string[]>([]);
+  const [productOptions, setProductOptions] = useState<Array<{name: string; price_modifier: number; order: number; is_active: boolean}>>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -209,6 +210,7 @@ export default function ProductsPage() {
     setMainImagePreview('');
     setProductImages([]);
     setProductImagePreviews([]);
+    setProductOptions([]);
     setErrors({});
     setIsDialogOpen(true);
   };
@@ -232,6 +234,17 @@ export default function ProductsPage() {
     setMainImagePreview(product.image || '');
     setProductImages([]);
     setProductImagePreviews(product.color_images || []);
+    // Load product options
+    if (product.options && product.options.length > 0) {
+      setProductOptions(product.options.map(opt => ({
+        name: opt.name,
+        price_modifier: opt.price_modifier,
+        order: opt.order,
+        is_active: opt.is_active
+      })));
+    } else {
+      setProductOptions([]);
+    }
     setErrors({});
     setIsDialogOpen(true);
   };
@@ -329,6 +342,16 @@ export default function ProductsPage() {
         submitData.product_images = uploadedImageUrls;
       }
 
+      // Add product options if any
+      if (productOptions.length > 0) {
+        submitData.product_options = productOptions.map((opt, index) => ({
+          name: opt.name,
+          price_modifier: parseFloat(opt.price_modifier.toString()) || 0,
+          order: opt.order || index,
+          is_active: opt.is_active !== false
+        }));
+      }
+
       if (selectedProduct) {
         await updateProduct(selectedProduct.id, submitData);
       } else {
@@ -352,6 +375,7 @@ export default function ProductsPage() {
       setMainImagePreview('');
       setProductImages([]);
       setProductImagePreviews([]);
+      setProductOptions([]);
       setErrors({});
       await loadData();
     } catch (error: any) {
@@ -783,6 +807,108 @@ export default function ProductsPage() {
                 />
               </label>
             </div>
+            </div>
+
+            {/* Product Options */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex-1">
+                  Сонголтууд
+                </h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setProductOptions([...productOptions, {
+                      name: '',
+                      price_modifier: 0,
+                      order: productOptions.length,
+                      is_active: true
+                    }]);
+                  }}
+                  className="ml-2"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Сонголт нэмэх
+                </Button>
+              </div>
+              
+              {productOptions.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  Сонголт байхгүй. "Сонголт нэмэх" товч дараад нэмнэ үү.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {productOptions.map((option, index) => (
+                    <div key={index} className="flex gap-2 items-start p-3 border rounded-lg bg-gray-50">
+                      <div className="flex-1 grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Нэр
+                          </label>
+                          <Input
+                            value={option.name}
+                            onChange={(e) => {
+                              const newOptions = [...productOptions];
+                              newOptions[index].name = e.target.value;
+                              setProductOptions(newOptions);
+                            }}
+                            placeholder="Жишээ: Жижиг, Том, Улаан..."
+                            className="text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Үнэний өөрчлөлт (₮)
+                          </label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={option.price_modifier}
+                            onChange={(e) => {
+                              const newOptions = [...productOptions];
+                              newOptions[index].price_modifier = parseFloat(e.target.value) || 0;
+                              setProductOptions(newOptions);
+                            }}
+                            placeholder="0.00"
+                            className="text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 pt-6">
+                        <input
+                          type="checkbox"
+                          checked={option.is_active}
+                          onChange={(e) => {
+                            const newOptions = [...productOptions];
+                            newOptions[index].is_active = e.target.checked;
+                            setProductOptions(newOptions);
+                          }}
+                          className="w-4 h-4"
+                          title="Идэвхтэй"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const newOptions = productOptions.filter((_, i) => i !== index);
+                            // Reorder
+                            newOptions.forEach((opt, i) => {
+                              opt.order = i;
+                            });
+                            setProductOptions(newOptions);
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Status */}

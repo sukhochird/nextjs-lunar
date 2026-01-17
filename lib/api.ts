@@ -1,6 +1,15 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 // Types matching the frontend interfaces
+export interface ProductOption {
+  id: number;
+  name: string;
+  price_modifier: number;
+  final_price: number;
+  order: number;
+  is_active: boolean;
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -12,6 +21,7 @@ export interface Product {
   discount: number;
   discount_percentage?: number;
   selling_price?: number;
+  options?: ProductOption[];
 }
 
 export interface ProductDetail extends Product {
@@ -22,6 +32,7 @@ export interface ProductDetail extends Product {
   sales?: number;
   created_at: string;
   updated_at: string;
+  options?: ProductOption[];
 }
 
 export interface Store {
@@ -252,3 +263,77 @@ export async function fetchSimilarProducts(slug: string): Promise<Product[]> {
   return response.json();
 }
 
+export interface OrderItem {
+  product_id: number;
+  option_id?: number | null;
+  quantity: number;
+  price: number;
+}
+
+export interface CreateOrderRequest {
+  store_id: number;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  items: OrderItem[];
+  notes?: string;
+  delivery_price: number;
+}
+
+export interface OrderResponse {
+  success: boolean;
+  order: {
+    id: number;
+    store: number;
+    store_name: string;
+    customer_name: string;
+    customer_phone: string;
+    customer_address: string;
+    total_amount: string;
+    status: string;
+    notes: string;
+    qpay_invoice_id: string | null;
+    qpay_invoice_url: string | null;
+    qpay_qr_code: string | null;
+    payment_status: string;
+    created_at: string;
+    updated_at: string;
+    items: Array<{
+      product_id: number;
+      product_title: string;
+      quantity: number;
+      price: number;
+      subtotal: number;
+    }>;
+  };
+  invoice: {
+    invoice_id: string;
+    invoice_url: string;
+    qr_code: string;
+    qr_image?: string; // Base64 encoded QR code image
+    urls?: Array<{
+      name: string;
+      link: string;
+      logo?: string;
+      description?: string;
+    }>; // Payment deep links
+  };
+}
+
+export async function createOrder(orderData: CreateOrderRequest): Promise<OrderResponse> {
+  const response = await fetch(`${API_BASE_URL}/orders/create/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(orderData),
+    cache: 'no-store',
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(errorData.error || `Failed to create order: ${response.statusText}`);
+  }
+  
+  return response.json();
+}

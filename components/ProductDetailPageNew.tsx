@@ -196,17 +196,7 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
   };
 
   const handleBuyNow = () => {
-    addToCart({
-      productId: product.id,
-      title: product.title,
-      price: product.price,
-      image: product.colorImages[selectedVariant],
-      quantity: quantity,
-      variant: selectedVariant,
-      storeId: product.storeId,
-    });
-    
-    // Open checkout modal
+    // Don't add to cart, just open checkout with this specific item
     setIsCheckoutModalOpen(true);
   };
 
@@ -877,6 +867,15 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
       <CheckoutModal
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
+        items={[{
+          productId: product.id,
+          title: product.title,
+          price: product.price,
+          image: product.colorImages[selectedVariant],
+          quantity: quantity,
+          variant: selectedVariant,
+          storeId: product.storeId,
+        }]}
       />
 
       {/* Footer */}

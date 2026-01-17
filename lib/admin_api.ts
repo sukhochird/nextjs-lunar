@@ -37,6 +37,14 @@ export interface AdminStore {
   updated_at: string;
 }
 
+export interface AdminProductOption {
+  id: number;
+  name: string;
+  price_modifier: number;
+  order: number;
+  is_active: boolean;
+}
+
 export interface AdminProduct {
   id: number;
   title: string;
@@ -52,6 +60,7 @@ export interface AdminProduct {
   category_name?: string;
   is_active: boolean;
   color_images: string[];
+  options?: AdminProductOption[];
   created_at: string;
   updated_at: string;
 }

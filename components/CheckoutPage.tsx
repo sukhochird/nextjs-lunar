@@ -16,6 +16,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { createOrder, CreateOrderRequest } from '@/lib/api';
 
 interface CheckoutPageProps {
   onBack: () => void;
@@ -26,8 +27,23 @@ export function CheckoutPage({ onBack, onSuccess }: CheckoutPageProps) {
   const { cart, getTotalPrice, clearCart, getDeliveryPrice, getUniqueStoreIds } = useCart();
   const [step, setStep] = useState<'info' | 'payment' | 'success'>('info');
   const [storeDeliveryPrices, setStoreDeliveryPrices] = useState<Map<number, number>>(new Map());
+  const [loading, setLoading] = useState(false);
+  const [orderData, setOrderData] = useState<{
+    invoiceUrl?: string;
+    qrCode?: string;
+    qrImage?: string; // Base64 encoded QR code image
+    invoiceId?: string;
+    urls?: Array<{
+      name: string;
+      link: string;
+      logo?: string;
+      description?: string;
+    }>; // Payment deep links
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
+    name: '',
     phone: '',
     address: '',
   });
@@ -78,16 +94,75 @@ export function CheckoutPage({ onBack, onSuccess }: CheckoutPageProps) {
     });
   };
 
-  const handleContinueToPayment = (e: React.FormEvent) => {
+  const handleContinueToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
-    if (!formData.phone || !formData.address) {
-      alert('Утасны дугаар болон хүргэх хаягаа оруулна уу');
+    if (!formData.name || !formData.phone || !formData.address) {
+      alert('Бүх шаардлагатай талбаруудыг бөглөнө үү');
       return;
     }
 
-    setStep('payment');
+    if (cart.length === 0) {
+      alert('Сагс хоосон байна');
+      return;
+    }
+
+    // Get store ID from cart (assuming all items are from same store or first store)
+    const storeIds = getUniqueStoreIds();
+    if (storeIds.length === 0) {
+      alert('Дэлгүүр олдсонгүй');
+      return;
+    }
+
+    // For now, use the first store. In future, you might want to create separate orders per store
+    const storeId = storeIds[0];
+    const deliveryPrice = storeDeliveryPrices.get(storeId) || 0;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Prepare order items
+      const items = cart.map(item => ({
+        product_id: item.productId,
+        option_id: item.optionId || null,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
+      // Create order request
+      const orderRequest: CreateOrderRequest = {
+        store_id: storeId,
+        customer_name: formData.name,
+        customer_phone: formData.phone,
+        customer_address: formData.address,
+        items: items,
+        delivery_price: deliveryPrice,
+      };
+
+      // Create order via API
+      const response = await createOrder(orderRequest);
+
+      if (response.success && response.invoice) {
+        setOrderData({
+          invoiceUrl: response.invoice.invoice_url,
+          qrCode: response.invoice.qr_code,
+          qrImage: response.invoice.qr_image,
+          invoiceId: response.invoice.invoice_id,
+          urls: response.invoice.urls,
+        });
+        setStep('payment');
+      } else {
+        throw new Error('Захиалга үүсгэхэд алдаа гарлаа');
+      }
+    } catch (err: any) {
+      console.error('Error creating order:', err);
+      setError(err.message || 'Захиалга үүсгэхэд алдаа гарлаа');
+      alert(err.message || 'Захиалга үүсгэхэд алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePaymentComplete = () => {
@@ -100,18 +175,6 @@ export function CheckoutPage({ onBack, onSuccess }: CheckoutPageProps) {
     }, 3000);
   };
 
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    alert('Хуулагдлаа!');
-  };
-
-  // Bank account details
-  const bankDetails = {
-    bankName: 'Хаан банк',
-    accountNumber: '5123456789',
-    accountName: 'Цагаан сарын цахим экспо',
-    qrCode: 'https://images.unsplash.com/photo-1609520778163-a16fb3b0453e?w=400&h=400&fit=crop',
-  };
 
   if (cart.length === 0 && step !== 'success') {
     return (
@@ -236,6 +299,20 @@ export function CheckoutPage({ onBack, onSuccess }: CheckoutPageProps) {
                 <form onSubmit={handleContinueToPayment} className="space-y-4">
                   <div>
                     <label className="block text-sm text-gray-700 mb-2 flex items-center gap-2">
+                      <span>Нэр</span> <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Таны нэр"
+                      required
+                      className="rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2 flex items-center gap-2">
                       <Phone className="w-4 h-4 text-primary" />
                       Утасны дугаар <span className="text-red-500">*</span>
                     </label>
@@ -265,11 +342,18 @@ export function CheckoutPage({ onBack, onSuccess }: CheckoutPageProps) {
                     />
                   </div>
 
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-sm text-red-800">{error}</p>
+                    </div>
+                  )}
+
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-primary to-[#B24167] hover:from-primary/90 hover:to-[#B24167]/90 rounded-xl h-12 shadow-lg shadow-primary/20"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-primary to-[#B24167] hover:from-primary/90 hover:to-[#B24167]/90 rounded-xl h-12 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Төлбөр төлөх
+                    {loading ? 'Захиалга үүсгэж байна...' : 'Төлбөр төлөх'}
                   </Button>
                 </form>
               </div>
@@ -306,72 +390,109 @@ export function CheckoutPage({ onBack, onSuccess }: CheckoutPageProps) {
                 </p>
               </div>
 
-              {/* QR Code */}
-              <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 shadow-sm">
-                <h3 className="text-base text-gray-700 mb-4 text-center">
-                  QR код уншуулж төлбөр төлөх
-                </h3>
-                <div className="flex justify-center mb-4">
-                  <ImageWithFallback
-                    src={bankDetails.qrCode}
-                    alt="Payment QR Code"
-                    className="w-56 h-56 rounded-lg border border-gray-200"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 text-center">
-                  QR кодыг банкны апп-аар уншуулж төлбөрөө төлнө үү
-                </p>
-              </div>
-
-              {/* Bank Transfer Details */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
-                <h3 className="text-base text-gray-700 mb-2">Дансны мэдээлэл</h3>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center bg-gray-50 rounded-lg p-4">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Банк</p>
-                      <p className="text-sm text-gray-900">{bankDetails.bankName}</p>
-                    </div>
+              {/* QPay QR Code */}
+              {(orderData?.qrImage || orderData?.qrCode) && (
+                <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 shadow-sm">
+                  <h3 className="text-base text-gray-700 mb-4 text-center">
+                    QPay QR код уншуулж төлбөр төлөх
+                  </h3>
+                  <div className="flex justify-center mb-4">
+                    {orderData.qrImage ? (
+                      <img
+                        src={`data:image/png;base64,${orderData.qrImage}`}
+                        alt="QPay Payment QR Code"
+                        className="w-56 h-56 rounded-lg border border-gray-200 p-2 bg-white"
+                      />
+                    ) : (
+                      <ImageWithFallback
+                        src={orderData.qrCode || ''}
+                        alt="QPay Payment QR Code"
+                        className="w-56 h-56 rounded-lg border border-gray-200"
+                      />
+                    )}
                   </div>
-
-                  <div className="flex justify-between items-center bg-gray-50 rounded-lg p-4">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Дансны дугаар</p>
-                      <p className="text-base text-gray-900">{bankDetails.accountNumber}</p>
-                    </div>
-                    <button
-                      onClick={() => handleCopyToClipboard(bankDetails.accountNumber)}
-                      className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                    >
-                      <Copy className="w-5 h-5 text-primary" />
-                    </button>
-                  </div>
-
-                  <div className="flex justify-between items-center bg-gray-50 rounded-lg p-4">
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Дансны нэр</p>
-                      <p className="text-sm text-gray-900">{bankDetails.accountName}</p>
-                    </div>
-                    <button
-                      onClick={() => handleCopyToClipboard(bankDetails.accountName)}
-                      className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                    >
-                      <Copy className="w-5 h-5 text-primary" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <p className="text-xs text-blue-800">
-                    <strong>Анхаар:</strong> Төлбөрийн утга хэсэгт утасны дугаараа бичнэ үү
+                  <p className="text-xs text-gray-500 text-center mb-3">
+                    QR кодыг QPay апп-аар уншуулж төлбөрөө төлнө үү
                   </p>
+                  {orderData.invoiceUrl && (
+                    <div className="text-center">
+                      <a
+                        href={orderData.invoiceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Нэхэмжлэхэд нэвтрэх
+                      </a>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
+
+              {/* Payment Deep Links */}
+              {orderData?.urls && orderData.urls.length > 0 && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-base text-gray-700 mb-4 font-semibold">Төлбөр төлөх</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {orderData.urls.map((urlItem, index) => (
+                      <a
+                        key={index}
+                        href={urlItem.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-primary transition-colors"
+                      >
+                        {urlItem.logo ? (
+                          <img
+                            src={urlItem.logo}
+                            alt={urlItem.name}
+                            className="w-12 h-12 object-contain mb-2"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
+                            <span className="text-gray-400 text-xs">{urlItem.name.charAt(0).toUpperCase()}</span>
+                          </div>
+                        )}
+                        <p className="text-xs font-medium text-gray-900 text-center">{urlItem.name}</p>
+                        {urlItem.description && (
+                          <p className="text-xs text-gray-500 text-center mt-1">{urlItem.description}</p>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* QPay Invoice Link */}
+              {orderData?.invoiceUrl && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
+                  <h3 className="text-base text-gray-700 mb-2">QPay Нэхэмжлэх</h3>
+                  
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <p className="text-sm text-blue-800 mb-3">
+                      QPay нэхэмжлэхээр төлбөрөө төлөх бол доорх холбоосоор нэвтрэнэ үү
+                    </p>
+                    <a
+                      href={orderData.invoiceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block w-full text-center bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      Нэхэмжлэхэд нэвтрэх
+                    </a>
+                  </div>
+                </div>
+              )}
 
               {/* Delivery Info */}
               <div className="bg-gray-50 rounded-2xl p-6 space-y-3">
                 <h3 className="text-base text-gray-700 mb-3">Хүргэлтийн мэдээлэл</h3>
+                <div className="flex items-start gap-3 bg-white rounded-lg p-3">
+                  <div>
+                    <p className="text-xs text-gray-500">Нэр</p>
+                    <p className="text-sm text-gray-900">{formData.name}</p>
+                  </div>
+                </div>
                 <div className="flex items-start gap-3 bg-white rounded-lg p-3">
                   <Phone className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <div>

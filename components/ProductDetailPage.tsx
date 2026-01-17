@@ -40,6 +40,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { CheckoutModal } from "./CheckoutModal";
 import Slider from "react-slick";
 
+interface ProductOption {
+  id: number;
+  name: string;
+  price_modifier: number;
+  final_price: number;
+  order: number;
+  is_active: boolean;
+}
+
 interface Product {
   id: number;
   image: string;
@@ -55,6 +64,7 @@ interface Product {
   slug?: string; // Product slug for API calls
   description?: string; // Product description from API
   category?: any; // Category object from API
+  options?: ProductOption[]; // Product options
 }
 
 interface ProductDetailPageProps {
@@ -68,6 +78,7 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const { addToCart, getTotalItems } = useCart();
@@ -100,8 +111,20 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
   // Alias for backward compatibility
   const discount = discountPercentage;
   
+  // Calculate price based on selected option
+  const getCurrentPrice = () => {
+    const basePrice = product.sellingPrice || product.price;
+    if (product.options && product.options.length > 0 && selectedOption !== null) {
+      const option = product.options.find(opt => opt.id === selectedOption);
+      if (option) {
+        return option.final_price;
+      }
+    }
+    return basePrice;
+  };
+  
   // Use selling price if available, otherwise use regular price
-  const displayPrice = product.sellingPrice || product.price;
+  const displayPrice = getCurrentPrice();
 
   // Slider settings for main images
   const mainSliderSettings = {
@@ -192,13 +215,20 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
   }, [product.id, product.slug]);
 
   const handleAddToCart = () => {
+    // If options exist and none selected, show alert
+    if (product.options && product.options.length > 0 && selectedOption === null) {
+      alert('Сонголт хийх шаардлагатай');
+      return;
+    }
+    
     addToCart({
       productId: product.id,
       title: product.title,
-      price: displayPrice, // Use selling price if discount available
+      price: displayPrice,
       image: product.colorImages[selectedVariant],
       quantity: quantity,
       variant: selectedVariant,
+      optionId: selectedOption || undefined,
       storeId: product.storeId,
     });
     
@@ -209,17 +239,7 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
   };
 
   const handleBuyNow = () => {
-    addToCart({
-      productId: product.id,
-      title: product.title,
-      price: displayPrice, // Use selling price if discount available
-      image: product.colorImages[selectedVariant],
-      quantity: quantity,
-      variant: selectedVariant,
-      storeId: product.storeId,
-    });
-    
-    // Open checkout modal
+    // Don't add to cart, just open checkout with this specific item
     setIsCheckoutModalOpen(true);
   };
 
@@ -527,6 +547,45 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
 
             {/* Quantity & Purchase */}
             <div className="bg-white rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100 space-y-4 sm:space-y-5">
+              {/* Option Selection */}
+              {product.options && product.options.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-sm sm:text-base font-medium text-gray-900">Сонголт</span>
+                  <div className="flex flex-wrap gap-2">
+                    {product.options.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => setSelectedOption(option.id)}
+                        className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                          selectedOption === option.id
+                            ? 'border-primary bg-primary/10 text-primary font-semibold'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{option.name}</span>
+                          {option.price_modifier !== 0 && (
+                            <span className={`text-xs ${
+                              option.price_modifier > 0 ? 'text-red-600' : 'text-green-600'
+                            }`}>
+                              {option.price_modifier > 0 ? '+' : ''}
+                              {option.price_modifier.toLocaleString()}₮
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  {selectedOption !== null && (
+                    <p className="text-sm text-gray-600">
+                      Сонгосон үнэ: <span className="font-semibold text-primary">
+                        {product.options.find(opt => opt.id === selectedOption)?.final_price.toLocaleString()}₮
+                      </span>
+                    </p>
+                  )}
+                </div>
+              )}
+              
               {/* Quantity */}
               <div className="flex items-center justify-between">
                 <span className="text-sm sm:text-base font-medium text-gray-900">Тоо ширхэг</span>
@@ -920,6 +979,16 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
       <CheckoutModal
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
+        items={[{
+          productId: product.id,
+          title: product.title,
+          price: displayPrice,
+          image: product.colorImages[selectedVariant],
+          quantity: quantity,
+          variant: selectedVariant,
+          optionId: selectedOption || undefined,
+          storeId: product.storeId,
+        }]}
       />
 
       {/* Footer */}

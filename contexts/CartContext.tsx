@@ -10,6 +10,7 @@ export interface CartItem {
   image: string;
   quantity: number;
   variant: number;
+  optionId?: number;
   storeId?: number;
 }
 
@@ -45,9 +46,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (item: Omit<CartItem, 'id'>) => {
     setCart((prevCart) => {
-      // Check if item with same productId and variant already exists
+      // Check if item with same productId, variant, and optionId already exists
       const existingItemIndex = prevCart.findIndex(
-        (cartItem) => cartItem.productId === item.productId && cartItem.variant === item.variant
+        (cartItem) => 
+          cartItem.productId === item.productId && 
+          cartItem.variant === item.variant &&
+          cartItem.optionId === item.optionId
       );
 
       if (existingItemIndex > -1) {

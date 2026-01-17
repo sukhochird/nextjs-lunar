@@ -73,6 +73,7 @@ export default function ProductPage() {
           slug: apiProduct.slug, // Include slug for similar products API
           description: apiProduct.description || '', // Include description from API
           category: apiProduct.category, // Include category from API
+          options: apiProduct.options || [], // Include product options
         };
         
         setProduct(convertedProduct);

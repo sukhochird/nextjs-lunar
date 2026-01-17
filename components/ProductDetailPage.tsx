@@ -586,16 +586,22 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
                             : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <span>{option.name}</span>
-                          {option.price_modifier !== 0 && (
-                            <span className={`text-xs ${
-                              option.price_modifier > 0 ? 'text-red-600' : 'text-green-600'
-                            }`}>
-                              {option.price_modifier > 0 ? '+' : ''}
-                              {option.price_modifier.toLocaleString()}₮
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="font-medium">{option.name}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-semibold text-primary">
+                              {option.final_price.toLocaleString()}₮
                             </span>
-                          )}
+                            {option.price_modifier !== 0 && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                option.price_modifier > 0 
+                                  ? 'text-red-600 bg-red-50' 
+                                  : 'text-green-600 bg-green-50'
+                              }`}>
+                                {option.price_modifier > 0 ? '+' : ''}{option.price_modifier.toLocaleString()}₮
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </button>
                     ))}

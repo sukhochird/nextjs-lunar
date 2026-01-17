@@ -164,7 +164,8 @@ export function CheckoutModal({ isOpen, onClose, items }: CheckoutModalProps) {
 
     // For now, use the first store. In future, you might want to create separate orders per store
     const storeId = storeIds[0];
-    const deliveryPrice = storeDeliveryPrices.get(storeId) || 0;
+    // Calculate total delivery price for all stores in the order
+    const deliveryPrice = shippingCost;
 
     setLoading(true);
     setError(null);

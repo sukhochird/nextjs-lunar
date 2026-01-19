@@ -232,7 +232,7 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
       quantity: quantity,
       variant: selectedVariant,
       optionId: selectedOption || undefined,
-      storeId: product.storeId,
+      storeId: product.store?.id || product.storeId,
     });
     
     // Open cart drawer
@@ -1032,7 +1032,7 @@ export function ProductDetailPage({ product, onBack, onCartClick, onProductClick
           quantity: quantity,
           variant: selectedVariant,
           optionId: selectedOption || undefined,
-          storeId: product.storeId,
+          storeId: product.store?.id || product.storeId,
         }]}
       />
 

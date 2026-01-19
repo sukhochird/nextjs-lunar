@@ -58,10 +58,21 @@ export function CheckoutModal({ isOpen, onClose, items }: CheckoutModalProps) {
     address: '',
   });
 
+  // Get unique store IDs from checkout items
+  const getCheckoutUniqueStoreIds = () => {
+    const storeIds = new Set<number>();
+    checkoutItems.forEach(item => {
+      if (item.storeId) {
+        storeIds.add(item.storeId);
+      }
+    });
+    return Array.from(storeIds);
+  };
+
   // Load store delivery prices
   useEffect(() => {
     async function loadStoreDeliveryPrices() {
-      const storeIds = getUniqueStoreIds();
+      const storeIds = getCheckoutUniqueStoreIds();
       const deliveryMap = new Map<number, number>();
       
       try {
@@ -89,10 +100,10 @@ export function CheckoutModal({ isOpen, onClose, items }: CheckoutModalProps) {
       setStoreDeliveryPrices(deliveryMap);
     }
 
-    if (cart.length > 0 && isOpen) {
+    if (checkoutItems.length > 0 && isOpen) {
       loadStoreDeliveryPrices();
     }
-  }, [cart, isOpen, getUniqueStoreIds]);
+  }, [checkoutItems, isOpen]);
 
   // Calculate checkout total price
   const getCheckoutTotalPrice = () => {
@@ -101,18 +112,16 @@ export function CheckoutModal({ isOpen, onClose, items }: CheckoutModalProps) {
     }, 0);
   };
 
-  // Get unique store IDs from checkout items
-  const getCheckoutUniqueStoreIds = () => {
-    const storeIds = new Set<number>();
-    checkoutItems.forEach(item => {
-      if (item.storeId) {
-        storeIds.add(item.storeId);
-      }
-    });
-    return Array.from(storeIds);
+  // Calculate delivery price based on checkout items
+  const getCheckoutDeliveryPrice = () => {
+    const storeIds = getCheckoutUniqueStoreIds();
+    return storeIds.reduce((total, storeId) => {
+      const deliveryPrice = storeDeliveryPrices.get(storeId) || 0;
+      return total + deliveryPrice;
+    }, 0);
   };
 
-  const shippingCost = getDeliveryPrice(storeDeliveryPrices);
+  const shippingCost = getCheckoutDeliveryPrice();
   const totalWithShipping = getCheckoutTotalPrice() + shippingCost;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -241,8 +250,8 @@ export function CheckoutModal({ isOpen, onClose, items }: CheckoutModalProps) {
               <div className="bg-gray-50 rounded-xl p-4 space-y-3">
                 <h3 className="text-sm text-gray-700 mb-2">Захиалгын дэлгэрэнгүй</h3>
                 <div className="space-y-2 max-h-[120px] overflow-y-auto">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 text-sm">
+                  {checkoutItems.map((item, index) => (
+                    <div key={item.id || index} className="flex items-center gap-3 text-sm">
                       <ImageWithFallback
                         src={item.image}
                         alt={item.title}
